@@ -12,4 +12,12 @@
         android:text="Go To First Page"
         />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_two"
+        android:layout_margin="16dp"
+        android:text="Go To Second Page"
+        />
+
 </LinearLayout>
