@@ -9,6 +9,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 public class MainFragment extends Fragment {
     @Override
@@ -23,11 +24,6 @@ public class MainFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Button button_one = view.findViewById(R.id.button_one);
-        button_one.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
+        button_one.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.second_fragment, null));
     }
 }
