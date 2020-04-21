@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">DXCFitnessTracker</string>
+    <string name="Profile_title">PROFILE</string>
+    <string name="Personal_info">Personal Information</string>
+    <string name="Step_length">Step Length</string>
+    <string name="Step_goal">Step Goal</string>
+    <string name="Instruction">Instructions</string>
+    <string name="today_label">Today</string>
+    <string name="profile_label">Profile</string>
+    <string-array name="step_size_array">
+        <item>Small</item>
+        <item>Large</item>
+    </string-array>
+    <string-array name="step_goal">
+        <item>3000</item>
+        <item>6000</item>
+        <item>10000</item>
+    </string-array>
 </resources>
