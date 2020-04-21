@@ -3,10 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/gotopirstpage"
+    app:startDestination="@id/nav_fragment"
     tools:ignore="UnusedNavigation">
 
     <fragment
-        android:id="@+id/sample_nav_graph"
-        />
+        android:id="@+id/nav_fragment"
+        android:name="com.example.dxcfitnesstracker.MainFragment"
+        android:label="fragment_navigation"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_nav_fragment_to_second_fragment"
+            app:destination="@id/second_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/second_fragment"
+        android:name="com.example.dxcfitnesstracker.SecongFragment"
+        android:label="fragment_navigation"
+        tools:layout="@layout/fragment_second"/>
 
 </navigation>

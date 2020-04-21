@@ -1,6 +1,7 @@
 package com.example.dxcfitnesstracker;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.Navigation;
 
 import android.os.Bundle;
 import android.view.View;
@@ -13,5 +14,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
       //  setContentView(R.layout.activity_main);
         setContentView(R.layout.profile_layout);
+    }
+    @Override
+    public boolean onSupportNavigateUp(){
+        return Navigation.findNavController(this,R.id.nav_host_fragment).navigateUp();
     }
 }
