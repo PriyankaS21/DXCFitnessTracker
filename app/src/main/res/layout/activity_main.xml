@@ -13,5 +13,10 @@
         android:name="com.example.dxcfitnesstracker.MainFragment"
         app:defaultNavHost="true"
         app:navGraph="@navigation/main_navigation"/>
-
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/profilefrag"
+        android:name="com.example.dxcfitnesstracker.ProfileFragment"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>
