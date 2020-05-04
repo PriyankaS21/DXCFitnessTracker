@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ui.MainActivity">
 
     <fragment
         android:layout_width="match_parent"
@@ -13,13 +13,6 @@
         android:name="androidx.navigation.fragment.NavHostFragment"
         app:defaultNavHost="true"
         app:navGraph="@navigation/main_navigation"/>
-
-    <fragment
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/profilefrag"
-        android:name="com.example.dxcfitnesstracker.ProfileFragment"
-        />
 
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -31,8 +24,6 @@
         app:itemTextColor="@drawable/selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/menu_navigation" />
-
-
+        app:menu="@menu/menu_item" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

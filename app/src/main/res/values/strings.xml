@@ -1,19 +1,70 @@
 <resources>
     <string name="app_name">DXCFitnessTracker</string>
-    <string name="Profile_title">PROFILE</string>
     <string name="Personal_info">Personal Information</string>
     <string name="Step_length">Step Length</string>
     <string name="Step_goal">Step Goal</string>
     <string name="Instruction">Instructions</string>
     <string name="today_label">Today</string>
     <string name="profile_label">Profile</string>
-    <string-array name="step_size_array">
-        <item>Small</item>
-        <item>Large</item>
-    </string-array>
-    <string-array name="step_goal">
-        <item>3000</item>
-        <item>6000</item>
-        <item>10000</item>
-    </string-array>
+
+    <!---Track Steps page-->
+    <string name="track_step_fragment">Track Steps</string>
+    <string name="track_reports">Reports</string>
+    <string name="profile">Profile</string>
+
+    <!--Profile Page-->
+    <string name="step_size_summary">Current step size: %1$.2f %2$s</string>
+    <string name="set_step_size">Set step size</string>
+    <string name="set_goal">Set goal</string>
+    <string name="instructions">Instructions</string>
+
+    <!--Instruction Page-->
+    <string name="instruction_heading1">How to use?</string>
+    <string name="instruction_description1">Set your goal and step length from profile section then go to Track steps and start walking. Please keep your phone with you.</string>
+
+    <string name="instruction_heading2">Set goal?</string>
+    <string name="instruction_description2">We will help you to set step goal according to your achieved steps to keep you motivated.</string>
+
+    <string name="instruction_heading3">Counting when shaking phone?</string>
+    <string name="instruction_description3">Pedometer work with the buils-in sensor. If you shake your phone, it might be counted as steps. It\'s not a bug. \n\nWe will working hard for your better user experience.</string>
+
+    <string name="instruction_heading4">Step size?</string>
+    <string name="instruction_description4">We will help you to set step size as different height having different step length.</string>
+
+    <string name="instruction_heading5">Accuracy</string>
+    <string name="instruction_description5">We count your steps by using the built-in sensor in your phone, so the better the build-in sensor, the more accurate the step count.</string>
+
+    <string name="instruction_heading6">Placement Suggestion</string>
+    <string name="instruction_description6">Suggest: Put your phone in your hand, pocket, bag, armband or places close to your body. \n\nNot suggest: Put your phone away from your body; put your phone in places that shake too fast or places that have little movement.</string>
+
+    <string name="instruction_heading7">Counting when driving?</string>
+    <string name="instruction_description7">In certain driving circumstances, it may count some steps due to system restrictions, which depends on the conditions you are driving in and where you place your phone. \n\nIf this problem occurs, you may tap the PAUSE button to pause the step counter when you\'re taking a long drive.\n\nWe are continuously working on this issue and very sorry for any inconvenience caused.</string>
+
+    <string name="instruction_heading8">Save Battery</string>
+    <string name="instruction_description8">We count your steps with the built-in sensor. You can pause the app to save battery when you\'re not walking.</string>
+    <!--Instruction Page-->
+
+
+    <!--Track Steps Page-->
+    <string name="average">Average</string>
+    <string name="total">Total</string>
+    <string name="steps">Steps</string>
+    <string name="today_goal">Today\'s goal</string>
+    <string name="no_sensor">Sensor not found</string>
+    <string name="no_sensor_explain">This app requires a dedicated hardware step sensor - which your device does not have. This app won\'t run on your device.</string>
+    <string name="goal_reached_notification">Goal reached! %s steps and counting</string>
+    <string name="notification_text">%s steps to go</string>
+    <string name="your_progress_will_be_shown_here_soon">Your progress will be shown here soon</string>
+    <string name="notification_title">Pedometer is counting</string>
+    <string name="text_color">Text color:</string>
+    <string name="background_color">Background color:</string>
+
+    <!--Statics-->
+    <string name="record">Record</string>
+    <string name="total_last_7_days">Total last 7 days</string>
+    <string name="average_last_7_days">Average last 7 days</string>
+    <string name="total_this_month">Total this month</string>
+    <string name="average_this_month">Average this month</string>
+
+
 </resources>

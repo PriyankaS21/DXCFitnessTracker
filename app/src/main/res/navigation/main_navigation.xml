@@ -2,24 +2,35 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/gotopirstpage"
-    app:startDestination="@id/nav_fragment"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/tab1_track_steps"
     tools:ignore="UnusedNavigation">
 
     <fragment
-        android:id="@+id/nav_fragment"
-        android:name="com.example.dxcfitnesstracker.MainFragment"
-        android:label="fragment_navigation"
+        android:id="@+id/tab1_track_steps"
+        android:name="com.example.dxcfitnesstracker.ui.trackSteps.MainFragment"
+        android:label="@string/track_step_fragment"
         tools:layout="@layout/fragment_main">
         <action
-            android:id="@+id/action_nav_fragment_to_second_fragment"
-            app:destination="@id/second_fragment" />
+            android:id="@+id/action_tab1_track_steps_to_tab2_reports"
+            app:destination="@id/tab2_reports" />
     </fragment>
 
     <fragment
-        android:id="@+id/second_fragment"
-        android:name="com.example.dxcfitnesstracker.SecongFragment"
-        android:label="fragment_navigation"
-        tools:layout="@layout/fragment_second"/>
+        android:id="@+id/tab2_reports"
+        android:name="com.example.dxcfitnesstracker.ui.reports.ReportsFragment"
+        android:label="@string/track_step_fragment"
+        tools:layout="@layout/fragment_reports">
+        <action
+            android:id="@+id/action_reports_fragment_to_profile_fragment"
+            app:destination="@id/tab3_profile" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tab3_profile"
+        android:name="com.example.dxcfitnesstracker.ui.profile.ProfileFragment"
+        android:label="@string/track_step_fragment"
+        tools:layout="@layout/fragment_profile" />
+
 
 </navigation>
