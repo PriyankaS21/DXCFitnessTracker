@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.example.dxcfitnesstracker.BuildConfig;
+import com.example.dxcfitnesstracker.ui.trackSteps.MainFragment;
 import com.example.dxcfitnesstracker.util.Logger;
 import com.example.dxcfitnesstracker.util.Util;
 
@@ -22,15 +23,16 @@ public class ShutdownRecevier extends BroadcastReceiver {
         // setting on the next boot and displays an error message if it's not
         // set to true
         context.getSharedPreferences("pedometer", Context.MODE_PRIVATE).edit()
-                .putBoolean("correctShutdown", true).commit();
+                .putBoolean("correctShutdown", true).apply();
 
         Database db = Database.getInstance(context);
         // if it's already a new day, add the temp. steps to the last one
         if (db.getSteps(Util.getToday()) == Integer.MIN_VALUE) {
             int steps = db.getCurrentSteps();
-            db.insertNewDay(Util.getToday(), steps);
+            double calorie = db.getCurrentCalorie();
+            db.insertNewDay(Util.getToday(), steps, calorie);
         } else {
-            db.addToLastEntry(db.getCurrentSteps());
+            db.addToLastEntry(db.getCurrentSteps(), db.getCurrentCalorie());
         }
         // current steps will be reset on boot @see BootReceiver
         db.close();

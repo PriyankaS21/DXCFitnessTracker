@@ -19,6 +19,7 @@ import android.os.IBinder;
 
 import com.example.dxcfitnesstracker.BuildConfig;
 import com.example.dxcfitnesstracker.R;
+import com.example.dxcfitnesstracker.ui.trackSteps.MainFragment;
 import com.example.dxcfitnesstracker.util.API23Wrapper;
 import com.example.dxcfitnesstracker.util.API26Wrapper;
 import com.example.dxcfitnesstracker.util.Logger;
@@ -80,7 +81,7 @@ public class SensorListener extends Service implements SensorEventListener {
                 int pauseDifference = steps -
                         getSharedPreferences("pedometer", Context.MODE_PRIVATE)
                                 .getInt("pauseCount", steps);
-                db.insertNewDay(Util.getToday(), steps - pauseDifference);
+                db.insertNewDay(Util.getToday(), steps - pauseDifference, MainFragment.total_calorie_burnt);
                 if (pauseDifference > 0) {
                     // update pauseCount for the new day
                     getSharedPreferences("pedometer", Context.MODE_PRIVATE).edit()

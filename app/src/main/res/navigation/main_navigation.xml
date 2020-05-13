@@ -32,5 +32,4 @@
         android:label="@string/track_step_fragment"
         tools:layout="@layout/fragment_profile" />
 
-
 </navigation>

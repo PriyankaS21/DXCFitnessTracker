@@ -17,10 +17,28 @@
         eaze:egHighlightStrength="1" />
 
     <TextView
+        android:id="@+id/calorie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="130dp"
+        android:gravity="center"
+        android:textSize="35sp"
+        android:text="0.03" />
+
+    <TextView
+        android:id="@+id/cal_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/calorie"
+        android:layout_centerHorizontal="true"
+        android:text="@string/cal_unit"
+        android:textSize="15sp" />
+
+    <TextView
         android:id="@+id/steps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="230dp"
         android:gravity="center"
         android:textSize="45sp"
         android:text="10.000" />

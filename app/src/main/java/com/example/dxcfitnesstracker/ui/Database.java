@@ -20,7 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Database extends SQLiteOpenHelper {
 
     private final static String DB_NAME = "steps";
-    private final static int DB_VERSION = 2;
+    private final static int DB_VERSION = 3;
+    private final static String DB_NAME2 = "personal_info";
 
     private static Database instance;
     private static final AtomicInteger openCounter = new AtomicInteger();
@@ -46,15 +47,16 @@ public class Database extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(final SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + DB_NAME + " (date INTEGER, steps INTEGER)");
+        db.execSQL("CREATE TABLE " + DB_NAME + " (date INTEGER, steps INTEGER, calorie REAL)");
+        db.execSQL("CREATE TABLE " + DB_NAME2 + " (weight INTEGER, height INTEGER, age INTEGER)");
     }
 
     @Override
     public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion == 1) {
             // drop PRIMARY KEY constraint
-            db.execSQL("CREATE TABLE " + DB_NAME + "2 (date INTEGER, steps INTEGER)");
-            db.execSQL("INSERT INTO " + DB_NAME + "2 (date, steps) SELECT date, steps FROM " +
+            db.execSQL("CREATE TABLE " + DB_NAME + "2 (date INTEGER, steps INTEGER, calorie REAL)");
+            db.execSQL("INSERT INTO " + DB_NAME + "2 (date, steps, calorie) SELECT date, steps, calorie FROM " +
                     DB_NAME);
             db.execSQL("DROP TABLE " + DB_NAME);
             db.execSQL("ALTER TABLE " + DB_NAME + "2 RENAME TO " + DB_NAME + "");
@@ -91,7 +93,7 @@ public class Database extends SQLiteOpenHelper {
      * @param steps the current step value to be used as negative offset for the
      *              new day; must be >= 0
      */
-    public void insertNewDay(long date, int steps) {
+    public void insertNewDay(long date, int steps, double calorie) {
         getWritableDatabase().beginTransaction();
         try {
             Cursor c = getReadableDatabase().query(DB_NAME, new String[]{"date"}, "date = ?",
@@ -99,18 +101,19 @@ public class Database extends SQLiteOpenHelper {
             if (c.getCount() == 0 && steps >= 0) {
 
                 // add 'steps' to yesterdays count
-                addToLastEntry(steps);
+                addToLastEntry(steps, calorie);
 
                 // add today
                 ContentValues values = new ContentValues();
                 values.put("date", date);
                 // use the negative steps as offset
                 values.put("steps", -steps);
+                values.put("calorie", calorie);
                 getWritableDatabase().insert(DB_NAME, null, values);
             }
             c.close();
             if (BuildConfig.DEBUG) {
-                Logger.log("insertDay " + date + " / " + steps);
+                Logger.log("insertDay " + date + " / " + steps + calorie);
                 logState();
             }
             getWritableDatabase().setTransactionSuccessful();
@@ -119,13 +122,69 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
+    /*
+     * Insert personal information to table
+     * */
+    public void insertPersonalInfo(int weight, int height, int age) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("weight", weight);
+        cv.put("height", height);
+        cv.put("age", age);
+        long result = db.insert(DB_NAME2, null, cv);
+
+    }
+
+    /*
+     * extract weight from personal info table
+     */
+    public int getWeight() {
+        Cursor c = null;
+        String weightString = "";
+        int weight = 5;
+        int row_id = 1;
+        try {
+            c = getReadableDatabase().rawQuery("SELECT weight FROM " + DB_NAME2 + " WHERE rowid=?", new String[]{row_id + ""});
+            if (c.getCount() > 0) {
+                c.moveToFirst();
+                weightString = c.getString(c.getColumnIndex("weight"));
+                weight = Integer.parseInt(weightString);
+            }
+            return weight;
+        } finally {
+            c.close();
+        }
+    }
+
+    /*
+     * Get height from the table
+     * */
+    public int getHeight() {
+        Cursor c = null;
+        String heightString = "";
+        int height = 152;
+        int row_id = 1;
+        try {
+            c = getReadableDatabase().rawQuery("SELECT height FROM " + DB_NAME2 + " WHERE rowid=?", new String[]{row_id + ""});
+            if (c.getCount() > 0) {
+                c.moveToFirst();
+                heightString = c.getString(c.getColumnIndex("height"));
+                //c.getInt(0);
+                height = Integer.parseInt(heightString);
+            }
+            return height;
+        } finally {
+            c.close();
+        }
+    }
+
     /**
      * Adds the given number of steps to the last entry in the database
      *
      * @param steps the number of steps to add
      */
-    public void addToLastEntry(int steps) {
-        getWritableDatabase().execSQL("UPDATE " + DB_NAME + " SET steps = steps + " + steps +
+    public void addToLastEntry(int steps, double calorie) {
+        getWritableDatabase().execSQL("UPDATE " + DB_NAME + " SET steps = steps + " + steps + ", calorie = calorie + " + calorie +
                 " WHERE date = (SELECT MAX(date) FROM " + DB_NAME + ")");
     }
 
@@ -185,7 +244,7 @@ public class Database extends SQLiteOpenHelper {
      * Get the number of steps taken for a specific date.
      * <p>
      * If date is Util.getToday(), this method returns the offset which needs to
-     * be added to the value returned by getCurrentSteps() to get todays steps.
+     * be added to the value returned by getCurrentSteps() to get today's steps.
      */
     public int getSteps(final long date) {
         Cursor c = getReadableDatabase().query(DB_NAME, new String[]{"steps"}, "date = ?",
@@ -196,6 +255,23 @@ public class Database extends SQLiteOpenHelper {
         else re = c.getInt(0);
         c.close();
         return re;
+    }
+
+    /*
+     * Get the amount of calorie burnt for a specific date.
+     * If date is Util.getToday(), this method returns the offset which needs to
+     * be added to the value returned by getCurrentCalorie() to get today's calorie burnt.
+     * */
+
+    public double getCalorie(final long date) {
+        Cursor c = getReadableDatabase().query(DB_NAME, new String[]{"calorie"}, "date = ?",
+                new String[]{String.valueOf(date)}, null, null, null);
+        c.moveToFirst();
+        double ca;
+        if (c.getCount() == 0) ca = Integer.MIN_VALUE;
+        else ca = c.getInt(2);
+        c.close();
+        return ca;
     }
 
     /**
@@ -244,6 +320,26 @@ public class Database extends SQLiteOpenHelper {
         return re;
     }
 
+    /*
+     * Get the amount of calorie burnt between 'start and 'end' date
+     *
+     * */
+
+    public double getCalorie(final long start, final long end) {
+        Cursor c = getReadableDatabase()
+                .query(DB_NAME, new String[]{"SUM(calorie)"}, "date >= ? AND date <= ?",
+                        new String[]{String.valueOf(start), String.valueOf(end)}, null, null, null);
+        double ca;
+        if (c.getCount() == 0) {
+            ca = 0;
+        } else {
+            c.moveToFirst();
+            ca = c.getDouble(0);
+        }
+        c.close();
+        return ca;
+    }
+
     /**
      * Removes all entries with negative values.
      * <p/>
@@ -252,6 +348,7 @@ public class Database extends SQLiteOpenHelper {
      */
     void removeNegativeEntries() {
         getWritableDatabase().delete(DB_NAME, "steps < ?", new String[]{"0"});
+        getWritableDatabase().delete(DB_NAME, "calorie < ?", new String[]{"0"});
     }
 
     /**
@@ -315,5 +412,64 @@ public class Database extends SQLiteOpenHelper {
     public int getCurrentSteps() {
         int re = getSteps(-1);
         return re == Integer.MIN_VALUE ? 0 : re;
+    }
+
+    /*
+     * Saves the current 'calorie burnt since boot' sensor value in the database.
+     * */
+
+    public void saveCurrentCalorie(double calorie) {
+        ContentValues values = new ContentValues();
+        values.put("calorie", calorie);
+        if (getWritableDatabase().update(DB_NAME, values, "date = -1", null) == 0) {
+            values.put("date", -1);
+            getWritableDatabase().insert(DB_NAME, null, values);
+        }
+        if (BuildConfig.DEBUG) {
+            Logger.log("saving calories in db: " + calorie);
+        }
+    }
+
+    /*
+     * Reads the latest saved value for the 'calorie burnt since boot' sensor value.
+     *
+     * @return the current number of calorie burnt saved in the database or 0 if there
+     * is no entry
+     */
+
+    public double getCurrentCalorie() {
+        double ca = getCalorie(-1);
+        return ca == Double.MIN_VALUE ? 0 : ca;
+    }
+
+    /*
+     * To check whether data exist or not in table
+     */
+    public boolean dataExists() {
+        String COLUMN_NAME = "weight";
+        String[] columns = {COLUMN_NAME};
+        String limit = "1";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor mCursor = db.query(DB_NAME2, columns, null, null, null, null, null, limit);
+
+        if (mCursor != null) {
+            return true;
+            /* record exist */
+        } else {
+            return false;
+            /* record not exist */
+        }
+    }
+
+    /*
+     * Clear data from table if exist
+     */
+    public void clearData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from " + DB_NAME2);
+        db.close();
+
     }
 }

@@ -6,15 +6,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.SensorListener;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +30,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.dxcfitnesstracker.data.profile.profiledata.ProfileData;
 import com.example.dxcfitnesstracker.R;
 import com.example.dxcfitnesstracker.model.ProfileDataModel;
+import com.example.dxcfitnesstracker.ui.Database;
+import com.example.dxcfitnesstracker.ui.trackSteps.MainFragment;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -37,6 +43,12 @@ public class ProfileFragment extends Fragment {
     private static RecyclerView recyclerView;
     private static ArrayList<ProfileDataModel> data;
     static View.OnClickListener myOnClickListener;
+    public EditText age, height, weight;
+    public static double bmi = 24;
+    public static int ageValue, heightValue, weightValue;
+    private static boolean split_active;
+    int totalSteps = 0;
+    String ageText, heightText, weightText;
 
     public final static int DEFAULT_GOAL = 1000;
     public final static float DEFAULT_STEP_SIZE = Locale.getDefault() == Locale.US ? 2.5f : 75f;
@@ -92,19 +104,24 @@ public class ProfileFragment extends Fragment {
             switch (itemPosition) {
 
                 case 0:
+                    getPersonalInfoDialog();
+                    break;
+
+                case 1:
                     stepSizeDialog();
                     break;
-                case 1:
+                case 2:
                     stepGoalDialog();
                     break;
 
-                case 2:
-                    break;
-
                 case 3:
+                    getTotalStepCountDialog().show();
                     break;
 
                 case 4:
+                    break;
+
+                case 5:
                     instructionsDialog();
                     break;
             }
@@ -176,6 +193,54 @@ public class ProfileFragment extends Fragment {
             dialog.show();
         }
 
+
+        private void getPersonalInfoDialog() {
+            builder = new AlertDialog.Builder(getActivity());
+            v = getActivity().getLayoutInflater().inflate(R.layout.dialog_personal_information, null);
+            builder.setView(v);
+            builder.setTitle(R.string.personalInfoTitle);
+            builder.setCancelable(false);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    age = v.findViewById(R.id.age_edit_text);
+                    height = v.findViewById(R.id.height_edit_text);
+                    weight = v.findViewById(R.id.weight_edit_text);
+                    ageText = age.getText().toString();
+                    heightText = height.getText().toString();
+                    weightText = weight.getText().toString();
+
+                    if (ageText.isEmpty()) {
+                        age.setError("Please enter the value");
+                    } else if (heightText.isEmpty()) {
+                        height.setError("Please enter the value");
+
+                    } else if (weightText.isEmpty()) {
+                        weight.setError("Please enter the value");
+                    } else {
+                        ageValue = Integer.parseInt(ageText);
+                        weightValue = Integer.parseInt(weightText);
+                        heightValue = Integer.parseInt(heightText);
+
+                        Database db = Database.getInstance(getActivity());
+                        boolean result = db.dataExists();
+                        if (result) {
+                            db.clearData();
+                            db.insertPersonalInfo(weightValue, heightValue, ageValue);
+                        } else {
+                            db.insertPersonalInfo(weightValue, heightValue, ageValue);
+                        }
+
+                        //bmi = weightValue/Math.pow(heightValue,2);
+                        // prefs.edit().putLong("bmi", Double.doubleToRawLongBits(bmi)).apply();
+                    }
+                    dialog.dismiss();
+                }
+            });
+            Dialog dialog = builder.create();
+            dialog.show();
+        }
+
         private void instructionsDialog() {
             builder = new AlertDialog.Builder(getActivity());
             v = Objects.requireNonNull(getActivity()).getLayoutInflater().inflate(R.layout.instructions, null);
@@ -190,8 +255,76 @@ public class ProfileFragment extends Fragment {
             dialog.show();
         }
 
+        //TODO implement notification after finishing the code
         private void notification() {
 
         }
+
+        private Dialog getTotalStepCountDialog() {
+            totalSteps = MainFragment.total_start + Math.max(MainFragment.todayOffset + MainFragment.since_boot, 0);
+            final Dialog d = new Dialog(getContext());
+            d.setTitle(R.string.stepCount);
+            d.setContentView(R.layout.dialog_total_step_count);
+
+            final SharedPreferences prefs =
+                    getContext().getSharedPreferences("pedometer", Context.MODE_PRIVATE);
+
+            long split_date = prefs.getLong("split_date", -1);
+            int split_steps = prefs.getInt("split_steps", totalSteps);
+            ((TextView) d.findViewById(R.id.steps))
+                    .setText(MainFragment.formatter.format(totalSteps - split_steps));
+            float stepsize = prefs.getFloat("stepsize_value", ProfileFragment.DEFAULT_STEP_SIZE);
+            float distance = (totalSteps - split_steps) * stepsize;
+            if (prefs.getString("stepsize_unit", ProfileFragment.DEFAULT_STEP_UNIT).equals("cm")) {
+                distance /= 100000;
+                ((TextView) d.findViewById(R.id.distanceunit)).setText("km");
+            } else {
+                distance /= 5280;
+                ((TextView) d.findViewById(R.id.distanceunit)).setText("mi");
+            }
+            ((TextView) d.findViewById(R.id.distance))
+                    .setText(MainFragment.formatter.format(distance));
+            ((TextView) d.findViewById(R.id.date)).setText(getContext().getString(R.string.since,
+                    java.text.DateFormat.getDateTimeInstance().format(split_date)));
+
+            final View started = d.findViewById(R.id.started);
+            final View stopped = d.findViewById(R.id.stopped);
+
+            split_active = split_date > 0;
+
+            started.setVisibility(split_active ? View.VISIBLE : View.GONE);
+            stopped.setVisibility(split_active ? View.GONE : View.VISIBLE);
+
+            final Button startstop = (Button) d.findViewById(R.id.start);
+            startstop.setText(split_active ? R.string.stop : R.string.start);
+            startstop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    if (!split_active) {
+                        prefs.edit().putLong("split_date", System.currentTimeMillis())
+                                .putInt("split_steps", totalSteps).apply();
+                        split_active = true;
+                        d.dismiss();
+                    } else {
+                        started.setVisibility(View.GONE);
+                        stopped.setVisibility(View.VISIBLE);
+                        prefs.edit().remove("split_date").remove("split_steps").apply();
+                        split_active = false;
+                    }
+                    startstop.setText(split_active ? R.string.stop : R.string.start);
+                }
+            });
+
+            d.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    d.dismiss();
+                }
+            });
+
+            return d;
+        }
+
     }
+
 }
