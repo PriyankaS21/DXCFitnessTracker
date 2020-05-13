@@ -6,6 +6,7 @@
     <string name="Instruction">Instructions</string>
     <string name="today_label">Today</string>
     <string name="profile_label">Profile</string>
+    <string name="personalInfoTitle">Please provide information to calculate calorie burnt</string>
 
     <!---Track Steps page-->
     <string name="track_step_fragment">Track Steps</string>
@@ -17,6 +18,8 @@
     <string name="set_step_size">Set step size</string>
     <string name="set_goal">Set goal</string>
     <string name="instructions">Instructions</string>
+    <string name="close">Close</string>
+    <string name="no_split_active">No split counter active. Click start to count the steps from now on</string>
 
     <!--Instruction Page-->
     <string name="instruction_heading1">How to use?</string>
@@ -49,6 +52,8 @@
     <string name="average">Average</string>
     <string name="total">Total</string>
     <string name="steps">Steps</string>
+    <string name="cal_unit">Calorie</string>
+    <string name="total_cal">Total calorie burnt till now: </string>
     <string name="today_goal">Today\'s goal</string>
     <string name="no_sensor">Sensor not found</string>
     <string name="no_sensor_explain">This app requires a dedicated hardware step sensor - which your device does not have. This app won\'t run on your device.</string>
@@ -65,6 +70,10 @@
     <string name="average_last_7_days">Average last 7 days</string>
     <string name="total_this_month">Total this month</string>
     <string name="average_this_month">Average this month</string>
+    <string name="stepCount">Total Step Count</string>
+    <string name="stop">Stop</string>
+    <string name="start">Start</string>
+    <string name="since">Since %s</string>
 
 
 </resources>

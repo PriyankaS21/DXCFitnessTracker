@@ -8,6 +8,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,14 +21,17 @@ import com.example.dxcfitnesstracker.ui.Database;
 import com.example.dxcfitnesstracker.ui.Dialog_Statistics;
 import com.example.dxcfitnesstracker.ui.profile.ProfileFragment;
 import com.example.dxcfitnesstracker.ui.trackSteps.MainFragment;
+import com.example.dxcfitnesstracker.util.Util;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class ReportsFragment extends Fragment {
     BarChart barChart;
+    TextView calTextView, caltext;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,7 +45,27 @@ public class ReportsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        SharedPreferences prefs =
+                getActivity().getSharedPreferences("pedometer", Context.MODE_PRIVATE);
         barChart = view.findViewById(R.id.bargraph);
+        calTextView = view.findViewById(R.id.total_cal);
+        caltext = view.findViewById(R.id.total_cal_text);
+
+        Calendar date = Calendar.getInstance();
+        date.setTimeInMillis(Util.getToday());
+        int daysThisMonth = date.get(Calendar.DAY_OF_MONTH);
+
+        date.add(Calendar.DATE, -6);
+        Database db = Database.getInstance(getActivity());
+        //Double.longBitsToDouble(prefs.getLong(key, Double.doubleToLongBits(defaultValue)));
+        //double total_cal_burnt = Double.longBitsToDouble(prefs.getLong("totalCalorieBurnt", Double.doubleToLongBits(0.0)));
+        double calBurnt = db.getCalorie(date.getTimeInMillis(), System.currentTimeMillis());
+        String cal = String.format("%.2f", calBurnt);
+        if (calBurnt > 0.0) {
+            caltext.setVisibility(View.VISIBLE);
+            calTextView.setVisibility(View.VISIBLE);
+            calTextView.setText(cal);
+        }
         updateBars();
     }
 
@@ -73,7 +97,7 @@ public class ReportsFragment extends Fragment {
             steps = current.second;
             if (steps > 0) {
                 bm = new BarModel(df.format(new Date(current.first)), 0,
-                        steps > MainFragment.goal ? Color.parseColor("#99CC00") : Color.parseColor("#0099cc"));
+                        steps > MainFragment.goal ? Color.parseColor("#028090") : Color.parseColor("#2541B2"));
                 if (MainFragment.showSteps) {
                     bm.setValue(steps);
                 } else {

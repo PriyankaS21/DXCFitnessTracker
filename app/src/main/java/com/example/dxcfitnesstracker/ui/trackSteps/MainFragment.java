@@ -14,9 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.fragment.app.Fragment;
-
 import com.example.dxcfitnesstracker.BuildConfig;
 import com.example.dxcfitnesstracker.R;
 import com.example.dxcfitnesstracker.charts.PieChart;
@@ -25,7 +23,6 @@ import com.example.dxcfitnesstracker.ui.Database;
 import com.example.dxcfitnesstracker.ui.profile.ProfileFragment;
 import com.example.dxcfitnesstracker.util.Logger;
 import com.example.dxcfitnesstracker.util.Util;
-
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
@@ -33,12 +30,14 @@ import java.util.Objects;
 public class MainFragment extends Fragment implements SensorEventListener {
 
     private PieChart pg;
-    TextView stepsView, totalView, averageView, today_goal_value;
+    TextView stepsView, totalView, averageView, today_goal_value, calorie;
     private PieModel sliceGoal, sliceCurrent;
     public static int todayOffset, total_start, goal, since_boot, total_days;
     public final static NumberFormat formatter = NumberFormat.getInstance(Locale.getDefault());
     public static boolean showSteps = true;
     int steps_today;
+    public static double total_calorie_burnt = 0.0;
+    float distance_today, distance_total;
 
 
     @Override
@@ -51,6 +50,7 @@ public class MainFragment extends Fragment implements SensorEventListener {
         totalView = v.findViewById(R.id.total);
         averageView = v.findViewById(R.id.average);
         today_goal_value = v.findViewById(R.id.today_goal_value);
+        calorie = v.findViewById(R.id.calorie);
 
         pg = v.findViewById(R.id.graph);
 
@@ -73,6 +73,7 @@ public class MainFragment extends Fragment implements SensorEventListener {
         pg.setDrawValueInPie(false);
         pg.setUsePieRotation(true);
         pg.startAnimation();
+        calculateCalorieBurnt();
         return v;
 
     }
@@ -85,7 +86,7 @@ public class MainFragment extends Fragment implements SensorEventListener {
         Database db = Database.getInstance(getActivity());
 
         if (BuildConfig.DEBUG) db.logState();
-        // read todays offset
+        // read today's offset
         todayOffset = db.getSteps(Util.getToday());
 
         SharedPreferences prefs =
@@ -126,6 +127,7 @@ public class MainFragment extends Fragment implements SensorEventListener {
         db.close();
 
         stepsDistanceChanged();
+        calculateCalorieBurnt();
     }
 
     /**
@@ -146,6 +148,7 @@ public class MainFragment extends Fragment implements SensorEventListener {
             ((TextView) getView().findViewById(R.id.unit)).setText(unit);
         }
         updatePie();
+        calculateCalorieBurnt();
 
 
     }
@@ -163,7 +166,6 @@ public class MainFragment extends Fragment implements SensorEventListener {
         Database db = Database.getInstance(getActivity());
         db.saveCurrentSteps(since_boot);
         db.close();
-
     }
 
 
@@ -181,11 +183,12 @@ public class MainFragment extends Fragment implements SensorEventListener {
             // initializing them with -STEPS_SINCE_BOOT
             todayOffset = -(int) event.values[0];
             Database db = Database.getInstance(getActivity());
-            db.insertNewDay(Util.getToday(), (int) event.values[0]);
+            db.insertNewDay(Util.getToday(), (int) event.values[0], total_calorie_burnt);
             db.close();
         }
         since_boot = (int) event.values[0];
         updatePie();
+        calculateCalorieBurnt();
 
     }
 
@@ -222,8 +225,8 @@ public class MainFragment extends Fragment implements SensorEventListener {
             SharedPreferences prefs =
                     getActivity().getSharedPreferences("pedometer", Context.MODE_PRIVATE);
             float stepsize = prefs.getFloat("stepsize_value", ProfileFragment.DEFAULT_STEP_SIZE);
-            float distance_today = steps_today * stepsize;
-            float distance_total = (total_start + steps_today) * stepsize;
+            distance_today = steps_today * stepsize;
+            distance_total = (total_start + steps_today) * stepsize;
             if (prefs.getString("stepsize_unit", ProfileFragment.DEFAULT_STEP_UNIT)
                     .equals("cm")) {
                 distance_today /= 100000;
@@ -235,8 +238,23 @@ public class MainFragment extends Fragment implements SensorEventListener {
             stepsView.setText(formatter.format(distance_today));
             totalView.setText(formatter.format(distance_total));
             averageView.setText(formatter.format(distance_total / total_days));
-
-
         }
+    }
+
+    private void calculateCalorieBurnt() {
+        double calBurnt = (steps_today * 0.04);
+        //String cal = Double.toString(calBurnt);
+        String cal = String.format("%.2f", calBurnt);
+        calorie.setText(cal);
+        Database db = Database.getInstance(getActivity());
+        int weight = db.getWeight();
+        int height = db.getHeight();
+
+
+        total_calorie_burnt = (weight * 0.035) + (Math.pow((distance_total / total_days), 2) / (height)) * 0.029 * weight;
+
+        db.saveCurrentCalorie(total_calorie_burnt);
+
+
     }
 }
