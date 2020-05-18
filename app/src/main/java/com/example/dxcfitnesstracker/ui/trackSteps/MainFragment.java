@@ -14,7 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.fragment.app.Fragment;
+
 import com.example.dxcfitnesstracker.BuildConfig;
 import com.example.dxcfitnesstracker.R;
 import com.example.dxcfitnesstracker.charts.PieChart;
@@ -23,6 +25,7 @@ import com.example.dxcfitnesstracker.ui.Database;
 import com.example.dxcfitnesstracker.ui.profile.ProfileFragment;
 import com.example.dxcfitnesstracker.util.Logger;
 import com.example.dxcfitnesstracker.util.Util;
+
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
